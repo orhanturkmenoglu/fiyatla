@@ -1,4 +1,7 @@
-import { createProductService, getProductByBarcodeService } from "../services/product.service.js"
+import {
+  createProductService,
+  getProductByBarcodeService,
+} from "../services/product.service.js";
 
 export const createProduct = async (req, res) => {
   try {
@@ -7,7 +10,7 @@ export const createProduct = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Ürün başarıyla oluşturuldu",
-      product: newProduct
+      product: newProduct,
     });
   } catch (error) {
     console.error(`[Controller] createProduct Error: ${error.message}`);
@@ -17,27 +20,42 @@ export const createProduct = async (req, res) => {
 
 export const barcodeScan = async (req, res) => {
   try {
-    const { barcode } = req.query;
-    if (!barcode) {
-      return res.status(400).json({ success: false, message: "Barkod alanı zorunludur!" });
+    const { barcode, name } = req.query;
+    if (!barcode && !name) {
+      return res.status(400).json({
+        success: false,
+        message: "Barkod veya ürün adı alanı zorunludur!",
+      });
     }
 
-    console.log(`[Controller] barcodeScan request: ${barcode}`);
-    const result = await getProductByBarcodeService(barcode);
+    console.log(
+      `[Controller] barcodeScan request: barcode=${barcode}, productName=${name}`
+    );
+    const result = await getProductByBarcodeService(barcode, name);
 
     if (!result) {
-      console.warn(`[Controller] Ürün bulunamadı: ${barcode}`);
-      return res.status(404).json({ success: false, message: "Ürün bulunamadı!" });
+      console.warn(`[Controller] Ürün bulunamadı: ${barcode || name}`);
+      return res
+        .status(404)
+        .json({ success: false, message: "Ürün bulunamadı!" });
     }
 
     return res.status(200).json({
       success: true,
-      message: `Ürün fiyat bilgisi${result.cached ? " (cache)" : ""} listelendi`,
-      product: result.product,
-      cached: result.cached
+      message: `Ürün fiyat bilgisi${
+        result.cached ? " (cache)" : ""
+      } listelendi`,
+      product: result.products,
+      cached: result.cached,
     });
   } catch (error) {
     console.error(`[Controller] barcodeScan Error: ${error.message}`);
-    return res.status(500).json({ success: false, message: "Sunucu hatası!", error: error.message });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Sunucu hatası!",
+        error: error.message,
+      });
   }
 };

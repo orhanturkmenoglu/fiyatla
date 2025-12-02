@@ -37,10 +37,15 @@ export const productValidationSchema = Joi.object({
 
 
 export const barcodeValidationSchema = Joi.object({
-  barcode: Joi.string().min(8).required().messages({
+  barcode: Joi.string().min(8).messages({
     "string.base": "Barkod metin olmalı",
     "string.empty": "Barkod boş olamaz",
     "string.min": "Barkod en az 8 karakter olmalı",
     "any.required": "Barkod alanı zorunludur"
-  })
+  }),
+   name: Joi.string().messages({
+    "string.base": "Ürün adı metin olmalı",
+    "string.empty": "Ürün adı boş olamaz",
+    "any.required": "Ürün adı alanı zorunludur"
+  }),
 });
