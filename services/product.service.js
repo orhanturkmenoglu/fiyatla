@@ -9,7 +9,9 @@ import redisClient from "../config/redis.client.js";
  */
 export const getProductByBarcodeService = async (barcode, name) => {
   try {
-    console.log(`[Service] Ürün araması başlıyor: barcode=${barcode}, name=${name}`);
+    console.log(
+      `[Service] Ürün araması başlıyor: barcode=${barcode}, name=${name}`
+    );
 
     // 1️⃣ Cache kontrol
     let cachedProduct = null;
@@ -23,7 +25,9 @@ export const getProductByBarcodeService = async (barcode, name) => {
 
     if (cachedProduct) {
       console.log(
-        `[Service] Cache bulundu: ${barcode || name} | lowestPrice: ${cachedProduct.lowestPrice} | highestPrice: ${cachedProduct.highestPrice}`
+        `[Service] Cache bulundu: ${barcode || name} | lowestPrice: ${
+          cachedProduct.lowestPrice
+        } | highestPrice: ${cachedProduct.highestPrice}`
       );
       return { products: cachedProduct, cached: true };
     }
@@ -45,8 +49,12 @@ export const getProductByBarcodeService = async (barcode, name) => {
     // 3️⃣ lowestPrice ve highestPrice hesapla
     const productsWithPrices = products.map((p) => {
       const prices = p.prices || [];
-      const lowestPrice = prices.length ? Math.min(...prices.map(pr => pr.price)) : null;
-      const highestPrice = prices.length ? Math.max(...prices.map(pr => pr.price)) : null;
+      const lowestPrice = prices.length
+        ? Math.min(...prices.map((pr) => pr.price))
+        : null;
+      const highestPrice = prices.length
+        ? Math.max(...prices.map((pr) => pr.price))
+        : null;
       return { ...p.toObject(), lowestPrice, highestPrice };
     });
 
@@ -54,15 +62,18 @@ export const getProductByBarcodeService = async (barcode, name) => {
     const cacheKey = barcode ? `product:${barcode}` : `productName:${name}`;
     await redisClient.setEx(cacheKey, 3600, JSON.stringify(productsWithPrices));
 
-    console.log(`[Service] Ürün DB’den çekildi ve cache’e kaydedildi: ${barcode || name}`);
+    console.log(
+      `[Service] Ürün DB’den çekildi ve cache’e kaydedildi: ${barcode || name}`
+    );
 
     return { products: productsWithPrices, cached: false };
   } catch (error) {
-    console.error(`[Service] getProductByBarcodeService Error: ${error.message}`);
+    console.error(
+      `[Service] getProductByBarcodeService Error: ${error.message}`
+    );
     throw error;
   }
 };
-
 
 /**
  * Yeni ürün oluşturma
