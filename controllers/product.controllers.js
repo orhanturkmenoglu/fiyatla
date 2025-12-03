@@ -6,7 +6,11 @@ import {
 export const createProduct = async (req, res) => {
   try {
     console.log(`[Controller] createProduct request body:`, req.body);
-    const newProduct = await createProductService(req.body);
+
+    const validatedData = req.validated;
+    console.log("[Controller] createProduct validated data:", validatedData);
+    
+    const newProduct = await createProductService(validatedData);
     return res.status(201).json({
       success: true,
       message: "Ürün başarıyla oluşturuldu",
@@ -20,7 +24,7 @@ export const createProduct = async (req, res) => {
 
 export const barcodeScan = async (req, res) => {
   try {
-    const { barcode, name } = req.query;
+    const { barcode, name } = req.validated;
     if (!barcode && !name) {
       return res.status(400).json({
         success: false,
@@ -50,12 +54,10 @@ export const barcodeScan = async (req, res) => {
     });
   } catch (error) {
     console.error(`[Controller] barcodeScan Error: ${error.message}`);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Sunucu hatası!",
-        error: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Sunucu hatası!",
+      error: error.message,
+    });
   }
 };
